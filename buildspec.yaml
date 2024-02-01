@@ -1,0 +1,15 @@
+version: 0.2
+phases:
+ 
+  pre_build:
+    commands:
+      - curl -fsSL https://get.docker.com -o get-docker.sh && sh ./get-docker.sh
+  build:
+    commands:
+      - printenv   
+      - sudo apt update
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 205429787317.dkr.ecr.ap-south-1.amazonaws.com
+      - docker build -t meliora-ecr_repo .
+      - docker tag meliora-ecr_repo:latest 205429787317.dkr.ecr.ap-south-1.amazonaws.com/meliora-ecr_repo:latest
+      - docker push 205429787317.dkr.ecr.ap-south-1.amazonaws.com/meliora-ecr_repo:latest
+      - aws ecs update-service --cluster meliora-ecs-cluster --service meliora-ecs-service --force-new-deployment
